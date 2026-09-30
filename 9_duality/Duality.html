@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html data-lt-installed="true"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<title>Duality</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="Duality_files/bootstrap.min_MXm-.css">
+
+	<script src="Duality_files/jquery.min_MXm-.js"></script>
+	<script src="Duality_files/popper.min_MXm-.js"></script>
+	<script src="Duality_files/bootstrap.min_MXm-.js"></script>
+	<script type="text/javascript" src="Duality_files/p5.min_MXm-.js"></script>
+	<link rel="stylesheet" href="Duality_files/font-awesome.min_MXm-.css">
+
+	<style>
+		html,
+		body {
+			overflow-x: hidden;
+		}
+
+		canvas {
+			border: 1px solid #000000;
+		}
+
+		a:hover {
+			text-decoration: none;
+		}
+
+		.fa-info-circle {
+			color: blue !important;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h1 class="text-center mt-2">Duality <a type="button" data-placement="top" href="#duality-explanation" class="fa fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true"></a>
+	</h1>
+
+
+	<h4 id="current-duality" class="text-center mt-4">Current duality: <a id="current-duality-text">Parabola</a></h4>
+	<h4 id="current-action" class="text-center">Current action: <a id="current-action-text"> insert point</a></h4>
+	<p class="ml-4 text-center">Left click at the canvas to apply the current
+		action</p>
+
+	<div class="row">
+		<div class="ml-4 col-sm-10">
+			<h2 style="text-align:left; float:left;">Primal</h2>
+			<h2 style="text-align:right; float:right;">Dual</h2>
+			<hr style="clear:both;">
+			<div class="row" id="main-canvas"><canvas id="defaultCanvas0" class="p5Canvas" style="width: 1202px; height: 600px;" width="2404" height="1200"></canvas></div>
+		</div>
+		<div class="ml-2">
+			<h4 class="mt-4">Options</h4>
+			<div class="container">
+				<form>
+					<div class="form-group">
+						<label for="duals"><b>Duality:</b></label>
+						<a type="button" data-placement="top" id="duality-tooltip" class="fa fa-lg fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-original-title="" title=""></a>
+						<select class="form-control" id="duals" onchange="changeCurrent(); dualityChanged();"><option selected="selected">Parabola</option><option>Circle</option></select>
+					</div>
+				</form>
+			</div>
+			<div class="container">
+				<form>
+					<div class="form-group">
+						<label for="sel"><b>Geometric objects:</b></label>
+						<a type="button" data-placement="top" id="drawing-tooltip" class="fa fa-lg fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-original-title="" title=""></a>
+						<select class="form-control" id="sel" onchange="changeCurrent();"><option selected="selected">Point</option><option>Line</option><option>Parabola</option><option>Circle</option></select>
+					</div>
+				</form>
+			</div>
+			<div class="container">
+				<form>
+					<div class="form-group">
+						<label for="act"><b>Actions:</b></label>
+						<a type="button" data-placement="top" id="actions-tooltip" class="fa fa-lg fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-original-title="" title=""></a>
+						<select class="form-control" id="act" onchange="changeCurrent();">
+							<option id="0" active="" selected="selected">Insert</option>
+							<option id="1">Delete</option>
+							<option id="2">Move</option>
+						</select>
+					</div>
+				</form>
+			</div>
+			<div class="container">
+				<label for="helpers-tooltip"><b>Helpers:</b></label>
+				<a type="button" data-placement="top" id="helpers-tooltip" class="fa fa-lg fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-original-title="" title=""></a>
+				<div class="form-check ml-3">
+					<input class="form-check-input" type="checkbox" value="" id="referenceLinesHandler" checked="checked">
+					<label class="form-check-label" for="referenceLinesHandler">Coordinate axes</label>
+				</div>
+				<div class="form-check ml-3">
+					<input class="form-check-input" type="checkbox" value="" id="lightningHandler" checked="checked">
+					<label class="form-check-label" for="lightningHandler">Lightning</label>
+				</div>
+				<div class="form-check ml-3">
+					<input class="form-check-input" type="checkbox" value="" id="referenceParabolasHandler">
+					<label class="form-check-label" for="referenceParabolasHandler">Reference conic</label>
+				</div>
+			</div>
+			<div class="container">
+				<button type="button" class="mt-4 ml-3 btn btn-danger" onclick="clearAll()">Clear all</button>
+			</div>
+		</div>
+		<div class="ml-4">
+			<form action="index.html">
+				<button type="submit" class="btn btn-secondary mt-4 text-left">Return to index</button>
+			</form>
+		</div>
+	</div>
+	<div class="ml-1 mr-5" style="margin-top: 10em" id="duality-explanation">
+		<h4>What is the duality?</h4>
+		<p>A duality <em>d</em> in the plane assigns points to rects and vice versa,
+			in a transformation that respects some interesting geometric property, such
+			as the relative position above/below or inside/outside. It is called duality
+			due to the fact that when applied twice it leaves the elements unchanged, whether
+			these are points or rects. In other words, <em>d<sup>2</sup>=Id</em>.
+			Although there are other dualities of the plane, the most used in computational
+			geometry are defined by two conics: the parabola <em>y = x<sup>2</sup> / 2</em>
+			and the circumference <em>ax<sup>2</sup> + by<sup>2</sup> = 1</em>.</p>
+		<h5>Parabola duality</h5>
+		<p>This duality takes as a reference the parabola <em>y = x<sup>2</sup> / 2</em> and
+			the transformations follow the following rule:</p>
+		<p class="text-center"><em>p = (a,b) ↦ D(p) = p<sup>*</sup> : y = ax - b</em></p>
+		<p class="text-center"><em>l : y = ax + b ↦ D(l) = l<sup>*</sup> = (a,-b)</em></p>
+		<p>This duality has the following characteristics:</p>
+		<ol>
+			<li><em>d<sup>2</sup> = Id.</em></li>
+			<li>Every point <em>p</em> corresponds to a dual rect <em>p<sup>*</sup></em>.</li>
+			<li>Every non-vertical rect <em>r</em> has a dual point <em>r<sup>*</sup></em>.
+				On the other hand, vertical rects have no image for this duality.</li>
+			<li>If <em>p</em> is a point above a rect <em>r</em>, then <em>r<sup>*</sup></em>
+				is a point above rect <em>p<sup>*</sup></em>.</li>
+			<li>Given a point <em>p</em> that belongs to the parabola, <em>p<sup>*</sup></em>
+				is the tangent rect to the parabola at the point <em>p</em>.</li>
+			<li>Given a point <em>q</em> on the plane, let <em>p</em> be the vertical
+				projection of <em>q</em> on the parabola. Then, <em>q<sup>*</sup></em> is the
+				rect parallel to <em>p<sup>*</sup></em> whose vertical distance to
+				<em>p<sup>*</sup></em> is the opposite of the vertical distance between points
+				<em>q</em> and <em>p</em>.</li>
+		</ol>
+		<h5>Circle duality</h5>
+		<p>This duality takes as a reference the circle <em>ax<sup>2</sup> + by<sup>2</sup> = 1</em>
+			and the transformation are as follows:</p>
+		<p class="text-center"><em>p = (a,b) ↦ D(p) = p<sup>*</sup> : ax + by = 1</em></p>
+		<p class="text-center"><em>l : ax + by = 1 ↦ D(l) = l<sup>*</sup> = (a,b)</em></p>
+		<p>The characteristics of this duality are as follows:</p>
+		<ol>
+			<li><em>d<sup>2</sup> = Id</em>.</li>
+			<li>Every point <em>p</em> different than the origin of coordinates (and
+				center of the circumference) has a dual rect <em>p<sup>*</sup></em>.
+				In contrast, the point <em>(0,0)</em> cannot be dualized.</li>
+			<li>Every rect <em>r</em> that does not pass through the origin
+				corresponds a dual point <em>r<sup>*</sup></em>. On the other hand, the
+				rects by the origin do not have a dual.</li>
+			<li>If <em>p</em> is a point of a dualizable rect <em>r</em>, then <em>r<sup>*</sup></em>
+				is a point of the rect <em>p<sup>*</sup></em>.</li>
+			<li>If <em>p</em> is a point different than the origin and <em>r</em> is a rect
+				that does not go through the origin, and <em>p</em> belongs to the half plane determined
+				by <em>r</em> that contains the origin, then <em>r<sup>*</sup></em> is a point at
+				the half plane determined by <em>p<sup>*</sup></em> that does not contain the origin,
+				and vice versa.</li>
+			<li>Given a point <em>p</em> that belong to the circumference, <em>p<sup>*</sup></em>
+				is the tangent rect to the circumference at the point <em>p</em>.</li>
+			<li>Given a point <em>q</em> on the plane, let <em>p</em> be the central projection
+				of <em>q</em> to the circumference, according to a projection with center at the
+				origin. Then, <em>q<sup>*</sup></em> is the parallel rect to <em>p<sup>*</sup></em>
+				whose distance to the origin is the inverse to the distance to the origin between
+				the points <em>q</em> and <em>p</em>.</li>
+		</ol>
+		<p></p>
+	</div>
+
+
+<script type="text/javascript" src="Duality_files/utils_MXm-.js"></script>
+
+<script type="text/javascript" src="Duality_files/DrawableView_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/PointView_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/LineView_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/ParabolaView_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/CircleView_MXm-.js"></script>
+
+<script type="text/javascript" src="Duality_files/Drawable_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/Point_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/Line_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/Parabola_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/Circle_MXm-.js"></script>
+
+<script type="text/javascript" src="Duality_files/DualityView_MXm-.js"></script>
+
+<script type="text/javascript" src="Duality_files/ParabolaDuality_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/CircleDuality_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/Duality_MXm-.js"></script>
+
+<script type="text/javascript" src="Duality_files/Handler_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/CircleHandler_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/ParabolaHandler_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/LineHandler_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/PointHandler_MXm-.js"></script>
+
+<script type="text/javascript" src="Duality_files/duality_MXm-.js"></script>
+<script type="text/javascript" src="Duality_files/DOM_MXm-.js"></script>
+
+<script>
+	addOptions();
+	changeCurrent();
+	assignTooltips();
+</script>
+
+<canvas style="display: none; width: 601px; height: 600px;" width="1202" height="1200"></canvas><canvas style="display: none; width: 601px; height: 600px;" width="1202" height="1200"></canvas></body></html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html data-lt-installed="true"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<title>Farthest-point Voronoi diagram &amp; Smallest enclosing circle</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/bootstrap.min_WDj_.css">
+
+	<script src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/jquery.min_WDj_.js"></script>
+	<script src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/popper.min_WDj_.js"></script>
+	<script src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/bootstrap.min_WDj_.js"></script>
+	<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/p5.min_WDj_.js"></script>
+	<link rel="stylesheet" href="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/font-awesome.min_WDj_.css">
+
+	<style>
+		html,
+		body {
+			overflow-x: hidden;
+		}
+
+		canvas {
+			border: 1px solid #000000;
+		}
+
+		a:hover {
+			text-decoration: none;
+		}
+
+		.fa-info-circle {
+			color: blue !important;
+		}
+
+		ovl {
+			text-decoration: overline;
+		}
+	</style>
+</head>
+
+<body>
+	<h1 class="text-center mt-2">Farthest-point Voronoi diagram &amp; Smallest enclosing circle <a type="button" data-placement="top" href="#explanation" class="fa fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true"></a></h1>
+
+	<h4 id="current" class="text-center mt-4">Current action: <a id="current-text">insert point</a></h4>
+
+	<div class="row">
+		<div class="ml-4 col-sm-10">
+			<div class="row" id="main-canvas"><canvas id="defaultCanvas0" class="p5Canvas" style="width: 1202px; height: 600px;" width="2404" height="1200"></canvas></div>
+			<div class="mt-2">
+				<div class="form-group row">
+					<div class="col-xs-2">
+						<label for="random"><b>Generate random points: </b></label>
+						<a type="button" data-placement="top" href="#halton-explanation" class="fa fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true"></a>
+						<input class="form-control" type="number" id="pointsQuantity" value="10" min="0" max="5000">
+					</div>
+					<button id="random" type="button" class="ml-2 btn btn-primary" onclick="generateRandomPoints();">
+						Generate
+					</button>
+				</div>
+			</div>
+		</div>
+		<div class="ml-4">
+			<h4 class="mt-4">Options</h4>
+			<div class="container">
+				<form>
+					<div class="form-group">
+						<label for="act"><b>Action:</b></label>
+						<a type="button" data-placement="top" id="actions-tooltip" class="fa fa-lg fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-original-title="" title=""></a>
+						<select class="form-control" id="act" onchange="changeCurrent();">
+							<option id="0" selected="selected">Insert</option>
+							<option id="1">Delete</option>
+							<option id="2">Move</option>
+						</select>
+					</div>
+				</form>
+			</div>
+			<div class="mt-4 ml-3">
+				<div class="container">
+					<button type="button" id="compute-button" class="btn btn-success" onclick="compute()">
+						Compute
+					</button>
+				</div>
+				<label class="mt-4" for="helpers-tooltip"><b>Helpers:</b></label>
+				<a type="button" data-placement="top" id="helpers-tooltip" class="fa fa-lg fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-original-title="" title=""></a>
+				<div class="form-check mt-1">
+					<input class="form-check-input" type="checkbox" id="CHcheckbox">
+					<label class="form-check-label" for="CHcheckbox">Show CH</label>
+				</div>
+				<div class="form-check mt-1">
+					<input class="form-check-input" type="checkbox" id="SEMcheckbox">
+					<label class="form-check-label" for="SEMcheckbox" checked="">Show circle</label>
+				</div>
+				<div class="form-check mt-1">
+					<input class="form-check-input" type="checkbox" id="SEMCcheckbox">
+					<label class="form-check-label" for="SEMCcheckbox" checked="">Show center</label>
+				</div>
+				<div class="form-check mt-1">
+					<input class="form-check-input" type="checkbox" id="FVDcheckbox">
+					<label class="form-check-label" for="FVDcheckbox" checked="">Show FVD</label>
+				</div>
+				<div class="form-check mt-4">
+					<button class="btn btn-primary fa fa-plus" onclick="zoom_out()"></button>
+					<button class="btn btn-primary fa fa-minus" onclick="zoom_in()"></button>
+				</div>
+				<div class="container mt-4">
+					<button type="button" id="clear-all-button" class="btn btn-danger" onclick="clearAll()">
+						Clear all
+					</button>
+				</div>
+			</div>
+
+			<div class="container">
+				<form action="index.html">
+					<button type="submit" class="btn btn-secondary ml-2 mb-4" style="font-size: small; position: absolute; bottom: 0; left: 0; right: 0;">
+						Return to index
+					</button>
+				</form>
+			</div>
+		</div>
+		<div class="ml-3 mr-5" style="margin-top: 10em;">
+			<div id="explanation">
+				<h4>Farthest-point Voronoi diagram and smallets enclosing circle</h4>
+				<p>The smallest enclosing circle is the circle with the smallest possible
+					radius that, given a set of points, it contains all of them.
+					It is known that the circumference <em>C</em> border of the smallest
+					enclosing circle of a finite set <em>P</em> of points always
+					crosses by two points of <em>P</em>, that are diametrically opposed, or
+					by three of the points of <em>P</em>.
+					In both cases, the points than determine the circumference <em>C</em>
+					equidistan from its center. Therefore, the center of the smallest
+					enclosing circle is, either inside an edge of the farthest-point Voronoi
+					diagram from <em>P</em> (in which case <em>C</em> is determined by two
+					diametrically opposed points) or coincides with one of the vertices of
+					that diagram (case where <em>C</em> is determined by three points).
+					In both cases, the points of <em>P</em> that determine the circle are
+					vertices of the convex hull of <em>P</em>.
+				</p>
+				<h4>What is the smallest enclosing circle?</h4>
+				<p>The algorithm to construct the smallest enclosing cirlce is as follows:
+					Given a set of <em>n</em> points <em>P = {p<sub>1</sub>,p<sub>2</sub>
+						,...,p<sub>n</sub>} ⊂ ℝ<sup>2</sup></em>, it starts
+					computing its convex hull <em>CH = {v<sub>1</sub>,...,v<sub>h</sub></em>,
+					where C is ordered so that <em>next(v<sub>i</sub>)</em> and <em>prev(v<sub>i</sub></em>
+					are the vertexs of <em>CH</em> previous and next to <em>v<sub>i</sub></em>
+					ordered counterclockwise, respectively. We denote as <em>radius(p,q,r)</em>
+					the radius of the circumference that cross by the three points <em>p, q</em>
+					and <em>r</em>, if they are different.
+					If two points are the same, <em>radius(p,q,r)</em> denotes the half of the
+					distance between the two different points.
+					Finally, <em>angle(p,q,r)</em> indicats the angle formed by the segments
+					<ovl>pq</ovl> and <ovl>qr</ovl>.
+					Throughout the algorithm, it will always be the case that <em>p ≠ q</em>
+					and <em>r ≠ q</em>, but it can happen that <em>p = r</em>.
+				</p>
+				<p>The algorithm analyzes the circles determined for every three consecutive vertexs
+					from <em>CH</em>, takes the biggest in terms of radius (and, in case of draw,
+					in terms of angle), and it descards it if the three points that generates it form
+					an obtuse triangle.
+				</p>
+				<h4>What is the farthest-point Voronoi diagram?</h4>
+				<p>The farthest-point Voronoi diagram of a finite set of points <em>P</em>
+					(usually called "sites"), is a decomposition of the plain in regions.
+					Each region is characterized by being the geometric location of the points
+					which the farthest site is the site itself. Only the vertexs
+					of the convex hull of <em>P</em> have a non-empty farthest-point Voronoi region
+					assosiated.
+				</p>
+				<p>The farthest-point Voronoi diagram of <em>P</em> can be represented as a
+					flat graph.
+					In fact, the diagram in not a graph in the affine space, since some of its
+					edges are semi-rects.
+					In particular, the diagram contains a semi-rect for each pair of consecutive
+					vertices of the convex hull of <em>P</em>, semi-rect that is a part of the
+					perpendicular bisector of the pair of points.
+					However, the diagram can be represented as a graph by considering that all
+					the semi-rects share a Voronoi vertex at infinity.
+					This, considered as a flat graph, it is stored in a Doubly Connected Edge
+					List (DCEL) in which the vertices of degree 1 indicates the direction of a
+					semi-rect of the 1-skeleton of the diagram, while the rest of vertices, all
+					of them of degree greater than or equal to 3, correspond to vertices
+					themselves in the Voronoi diagram.
+				</p>
+				<p>We denote by <em>v(p)</em> a point on the bisector of <em>p</em> and <em>next(p)</em>,
+					where <em>p</em> is a vertex of the convex hull of the given set of points <em>P</em>.
+					Initially, <em>v(p)</em> is a point on the bisector of <em>p</em> and <em>next(p)</em>
+					"at infinity" and to the right of the segment <ovl><em>pnext(p)</em></ovl>
+				</p>.
+				<p>Furthermore, as already mentioned, we can represent the farthest-point Vornoi diagram as
+					a flat graph.
+					Therefore, we will denote that <em>FVD = (K,E)</em>, where <em>K</em> is the set of
+					vertices of the farthest-point Voronoi diagram and <em>A</em> is the set of edges of
+					the farthest-point Voronoi diagram.
+					The algorithm to construct the farthest-point Voronoi diagram is similar to the
+					one used in the calculation of the smallest enclosing circle, with a simple
+					extension, which consists of:
+					given the set of points <em>CH = v<sub>1</sub>,...,v<sub>k</sub></em> computed
+					for the smallest enclosing circle, the algorithm analyzes the circles determined
+					by each three consecutive vertices of the <em>CH</em>, takes the biggest one in
+					terms of radius (and, in case of a tie, in terms of angle), as we saw in the
+					construction of the smallest enclosing circle.
+					Once this circle <em>C</em> is obtained, we have <em>p</em>, which is the point
+					such that <em>prev(p),p,next(p)</em> forme the cirlce <em>C</em>, with center
+					<em>c</em>.
+					Having the center of the circle <em>c</em> and the points <em>p</em> that forms it,
+					we add the center <em>c</em> to the set of vertices of the farthest-point Voronoi
+					diagram <em>K</em> and add to <em>E</em> the edges incident to this point <em>c</em> from the point
+					<em>v(p)</em> and the one before, <em>v(prev(p))</em>.
+					Therefore, we would have that <em>K = K ∪ c</em> and
+					<em>E = E ∪ (c, v(p)) &amp;cup(c, v(prev(p)))</em>.
+					By adding this new porint <em>c</em> to the set of vertices, the bisector <em>v(p)</em>
+					is no longer a point "at infinity" as stated before, but is now the new point <em>c</em>.
+					Also, we must remove <em>p</em> from the set of points <em>CH</em>, <em>CH = CH - {p}</em>.
+				</p>
+				<p>As the treated points are removed from <em>CH</em>, there will be a time when
+					circles can not be generated since there will only be 2 points left in CH.
+					At this point, add to the set <em>E</em> the edge formed by the points
+					<em>v(q)</em> and <em>v(next(q))</em>: <em>E = E &amp;cup (v(q), v(next(q)))</em>.
+				</p>
+			</div>
+			<div id="halton-explanation">
+				<h4>What are the Halton sequences?</h4>
+				<p>The Halton sequences are very useful for generating random points on the plane
+					(actually pseudo-random). This sequences are constructed with a deterministic
+					method based on the coprime numbers. An example of constructing point in the
+					square <em>(0,1) X (0,1) ⊂ ℝ<sup>2</sup></em> with bases 2 and 3,
+					respectively, is as follows:</p>
+				<p>To generate the sequence of base 2, the space (0,1) is divided recursively in
+					two halves, then four parts, then eight parts, etc.</p>
+				<p class="text-center"><em>1/2, 1/4, 3/4, 1/8, 5/8, 1/16, 9/16, ...</em></p>
+				<p>Similraly, in base 3 the interval <em>(0,1)</em> is recursively divided
+					into thirds, obtaining the sequence:</p>
+				<p class="text-center"><em>1/3, 2/3, 1/9, 4/9, 7/9, 2/9, 5/9, 1/27, ...</em></p>
+				<p>Combining both sequences the following points are obtained in the square
+					<em>(0,1) X (0,1)</em>:</p>
+				<p class="text-center"><em>(1/2,1/3), (1/4,2/3), (3/4,1/9), (1/8,4/9), (5/8, 7/9)
+						(3/8,2/9), (1/16,5/9), (9/16,1/27), ...</em></p>
+			</div>
+		</div>
+
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/utils_WDj_.js"></script>
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/Drawable_WDj_.js"></script>
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/Circle_WDj_.js"></script>
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/Line_WDj_.js"></script>
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/Point_WDj_.js"></script>
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/DrawableView_WDj_.js"></script>
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/CircleView_WDj_.js"></script>
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/LineView_WDj_.js"></script>
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/DashedLineView_WDj_.js"></script>
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/PointView_WDj_.js"></script>
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/Halton_WDj_.js"></script>
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/Graham_WDj_.js"></script>
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/DCEL_WDj_.js"></script>
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/MinimumSpanningCircleView_WDj_.js"></script>
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/MinimumSpanningCircle_WDj_.js"></script>
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/Handler_WDj_.js"></script>
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/PointHandler_WDj_.js"></script>
+
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/minimum_spanning_circle_WDj_.js"></script>
+<script type="text/javascript" src="Farthest-point%20Voronoi%20diagram%20&amp;%20Smallest%20enclosing%20circle_files/DOM_WDj_.js"></script>
+
+<script>
+	changeCurrent();
+	assignTooltips();
+</script>
+
+</div><canvas style="display: none; width: 1202px; height: 600px;" width="2404" height="1200"></canvas></body></html>

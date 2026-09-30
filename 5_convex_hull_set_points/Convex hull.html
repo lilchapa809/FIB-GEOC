@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html data-lt-installed="true"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<title>Convex hull</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="Convex%20hull_files/bootstrap.min_ztE_.css">
+
+	<script src="Convex%20hull_files/jquery.min_ztE_.js"></script>
+	<script src="Convex%20hull_files/popper.min_ztE_.js"></script>
+	<script src="Convex%20hull_files/bootstrap.min_ztE_.js"></script>
+	<script type="text/javascript" src="Convex%20hull_files/p5.min_ztE_.js"></script>
+	<link rel="stylesheet" href="Convex%20hull_files/font-awesome.min_ztE_.css">
+
+	<style>
+		html,
+		body {
+			overflow-x: hidden;
+		}
+
+		canvas {
+			border: 1px solid #000000;
+		}
+
+		a:hover {
+			text-decoration: none;
+		}
+
+		.fa-info-circle {
+			color: blue !important;
+		}
+
+		ovl {
+			text-decoration: overline;
+		}
+	</style>
+</head>
+
+<body>
+	<h1 class="text-center mt-2">Convex hull <a type="button" data-placement="top" href="#convexhull-explanation" class="fa fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true"></a></h1>
+	<h4 id="current" class="text-center mt-4">Current action: <a id="current-text">insert point</a></h4>
+	<p class="ml-4 text-center">Left click on the canvas to apply the current action</p>
+
+	<div class="row">
+		<div class="ml-4 col-sm-10">
+			<div class="row" id="main-canvas"><canvas id="defaultCanvas0" class="p5Canvas" style="width: 1202px; height: 600px;" width="2404" height="1200"></canvas></div>
+			<div class="mt-2">
+				<div class="form-group row">
+					<div class="col-xs-2">
+						<label for="random"><b>Generate random points: </b></label>
+						<a type="button" data-placement="top" href="#halton-explanation" class="fa fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true"></a>
+						<input class="form-control" type="number" id="pointsQuantity" value="10" min="0" max="5000">
+					</div>
+					<button id="random" type="button" class="ml-2 btn btn-primary" onclick="generateRandomPoints();">
+						Generate
+					</button>
+				</div>
+			</div>
+		</div>
+		<div class="ml-4">
+			<h4 class="mt-4">Options</h4>
+			<div class="container">
+				<form>
+					<div class="form-group">
+						<label for="act"><b>Action:</b></label>
+						<a type="button" data-placement="top" id="actions-tooltip" class="fa fa-lg fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-original-title="" title=""></a>
+						<select class="form-control" id="act" onchange="changeCurrent();">
+							<option id="0" selected="selected">Insert</option>
+							<option id="1">Delete</option>
+							<option id="2">Move</option>
+						</select>
+					</div>
+				</form>
+			</div>
+			<div class="container">
+				<form>
+					<div class="form-group">
+						<label for="type"><b>Run:</b></label>
+						<a type="button" data-placement="top" id="run-tooltip" class="fa fa-lg fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-original-title="" title=""></a>
+						<select class="form-control" id="type">
+							<option id="0" selected="selected">At once</option>
+							<option id="1">Step by step</option>
+						</select>
+					</div>
+				</form>
+			</div>
+			<div class="container" id="algorithm">
+				<form>
+					<div class="form-group">
+						<label for="alg"><b>Algorithm:</b></label>
+						<a type="button" data-placement="top" id="algorithm-tooltip" class="fa fa-lg fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-original-title="" title=""></a>
+						<select class="form-control" id="alg" onchange="changeAlgorithm();">
+							<option id="0" selected="selected">Incremental</option>
+							<option id="1">Divide and conquer</option>
+							<option id="2">Graham's</option>
+						</select>
+					</div>
+				</form>
+			</div>
+			<div class="container mt-4 ml-3">
+				<button type="button" id="compute-button" class="btn btn-success" onclick="compute()">
+					Compute
+				</button>
+			</div>
+			<div class="container mt-4 ml-3">
+				<button type="button" id="clear-convex-hull-button" class="btn btn-warning" onclick="clearCH()">
+					Clear convex hull
+				</button>
+			</div>
+			<div class="container mt-4 ml-3">
+				<button type="button" id="clear-all-button" class="btn btn-danger" onclick="clearAll()">
+					Clear all
+				</button>
+			</div>
+			<div id="play-stop" class="container mt-4 ml-3" style="display: none;">
+				<div class="mt-1">
+					<button type="button" id="step-forward" class="btn btn-primary fa fa-step-forward" onclick="step_forward()">
+						<a class="ml-1" style="font-family:Arial, Helvetica, sans-serif;">One Step</a>
+					</button>
+				</div>
+				<div class="mt-1">
+					<button type="button" id="play" class="btn btn-primary fa fa-play" onclick="play()">
+						<a class="ml-1" style="font-family:Arial, Helvetica, sans-serif;">Play</a>
+					</button>
+				</div>
+				<div class="mt-1">
+					<button type="button" id="faster" class="btn btn-primary fa fa-fast-forward" onclick="faster()">
+						<a class="ml-1" style="font-family:Arial, Helvetica, sans-serif;">Faster</a>
+					</button>
+				</div>
+				<div class="mt-1">
+					<button type="button" id="slower" class="btn btn-primary fa fa-fast-backward" onclick="slower()">
+						<a class="ml-1" style="font-family:Arial, Helvetica, sans-serif;">Slower</a>
+					</button>
+				</div>
+				<div class="mt-1">
+					<button type="button" id="pause" class="btn btn-primary fa fa-pause" onclick="pause()">
+						<a class="ml-1" style="font-family:Arial, Helvetica, sans-serif;">Pause</a>
+					</button>
+				</div>
+				<div class="mt-1">
+					<button type="button" id="stop" class="btn btn-primary fa fa-stop" onclick="stop()">
+						<a class="ml-1" style="font-family: Arial, Helvetica, sans-serif;">Stop</a>
+					</button>
+				</div>
+			</div>
+			<div class="container">
+				<form action="index.html">
+					<button type="submit" class="btn btn-secondary ml-2 mb-4" style="font-size: small; position: absolute; bottom: 0; left: 0; right: 0;">
+						Return to index
+					</button>
+				</form>
+			</div>
+		</div>
+		<div class="ml-3 mr-5" style="margin-top: 10em;">
+			<div id="convexhull-explanation">
+				<h4>What is the convex hull?</h4>
+				<p>In geometry, the convex hull of a given set is the smallest convex set
+					containing it. In the field of geometric algorithms, the convex hull of
+					a finite set of points is very often used. In this case, the envelope is
+					a convex polygon.
+				</p>
+				<h5>Incremental algorithm</h5>
+				<p>Following the strategy of any incremental algorithm, this algorithm
+					construct the convex hull of <em>n</em> points from the convex hull
+					of <em>n - 1</em>points.
+					Given a convex polygon (which is the convex hull of <em>n - 1</em> points)
+					and a point outside the polygon, the algorithm adds the new point as a
+					vertex of the frontier of the new convex hull.
+				</p>
+				<p>The algorithm proceeds as follows. First, sort the points lexicographically.
+					Then proceed iteratively: given a point <em>p<sub>i</sub></em> and the convex
+					hull <em>CH<sub>i-1</sub></em> of the points <em>p<sub>0</sub>,...,p<sub>i-1
+						</sub></em>, computes the supporting lines of the point <em>p<sub>i</sub></em>
+					and the convex hull <em>CH<sub>i-1</sub></em>. Computing this supporting lines
+					consists on finding the vertexs <em>p<sub>l</sub></em> and <em>p<sub>r</sub></em>
+					of <em>CH<sub>i-1</sub></em> that <ovl><em>p<sub>i</sub>p<sub>l</sub></em></ovl>
+					is the left supporting line of the <em>CH<sub>i-1</sub></em> and
+					<ovl><em>p<sub>i</sub>p<sub>r</sub></em></ovl> is the right supporting line
+					of <em>CH<sub>i-1</sub></em>. Then, the algorithm deletes the chain
+					<em>p<sub>l</sub>,...,p<sub>r</sub>⊂CH<sub>i-1</sub></em> and inserts
+					the vertex <em>p<sub>i</sub></em>.
+				</p>
+				<h5>Divide and conquer</h5>
+				<p>This technique consists in subdividing recursively the problem in smaller
+					subproblems, solve them and then merge the solutions of the subproblems to
+					get the solution of the original problem.
+				</p>
+				<p>In the case of the convex hull, the algorithm does the following operations.
+					First orders the points lexicographically, like in the incremental algorithm.
+				</p>
+				<p>Then, the recurrence starts. The algorithm divides the set <em>S</em> of
+					the input points into to subsets <em>S<sub>a</sub></em> and <em>S<sub>b</sub></em>
+					such that all points in <em>S<sub>a</sub></em> precedes lexicographically those of
+					<em>S<sub>b</sub></em> and, in addition, <em>|S<sub>a</sub>| + |S<sub>b</sub>| = |S|</em>
+					and <em>||S<sub>a</sub>| - |S<sub>b</sub>| ≤ 1</em>.
+					In this way, we obtain two subsets of similar size where each convex hull are disjoined.
+					This last property will be relevant at the merge.
+				</p>
+				<p>The convex hull <em>CH<sub>a</sub></em> and <em>CH<sub>b</sub></em> are computed
+					recursivelywith the two subsets <em>S<sub>a</sub></em> and <em>S<sub>b</sub></em>,
+					respectively.
+				</p>
+				<p>In order to merge the two convex hulls and obtain the convex hull of the set <em>S</em>,
+					the algorithm computes the common exterior tangents between <em>CH<sub>a</sub></em> and
+					<em>CH<sub>b</sub></em>. Note that the vertical separation between <em>S<sub>a</sub></em> and
+					<em>S<sub>b</sub></em> guarantees that <em>CH<sub>a</sub></em> and <em>CH<sub>b</sub></em>
+					that are disjoint, and, therefore, their common exterior tangents are, in fact, two, one
+					upper and the other lower. In fact, computing them consists in finding the vertexs
+					<em>p<sup>T</sup><sub>a</sub></em>, <em>p<sup>B</sup><sub>a</sub></em> of <em>CH<sub>a</sub></em>
+					and <em>p<sup>T</sup><sub>b</sub></em> and <em>p<sup>B</sup><sub>b</sub></em> of
+					<em>CH<sub>b</sub></em> such that <ovl><em>p<sup>T</sup><sub>a</sub></em>
+						<em>p<sup>T</sup><sub>b</sub></em></ovl> defines the upper tangent and
+					<ovl><em>p<sup>B</sup><sub>a</sub></em><em>p<sup>B</sup><sub>b</sub></em></ovl> defines
+					the lower tangent.
+					The merge ends deleting the chains
+					<em>p<sup>B</sup><sub>a</sub>,...,p<sup>T</sup><sub>a</sub> ⊂ CH<sub>a</sub></em> and
+					<em>p<sup>B</sup><sub>b</sub>,...,p<sup>T</sup><sub>b</sub> ⊂ CH<sub>b</sub></em> and
+					connecting <em>p<sup>T</sup><sub>a</sub></em> with <em>p<sup>T</sup><sub>b</sub></em> and
+					<em>p<sup>B</sup><sub>a</sub></em> with <em>p<sup>B</sup><sub>b</sub></em> in order
+					to form only one convex polligon, the convex hull of <em>S</em>.
+				</p>
+				<h5>Graham algorithm</h5>
+				<p>This technique is also known as the gift wrapping. It consists in polygonize the set
+					of points in a certain order and, as the polygonization progresses, gradually remove
+					any "pockets" that may form, that is, the sub-polygons of the convex hull
+					that are not part of the polygonization of the points that are being generated.
+				</p>
+				<p>More specifically, first a point <em>p</em> is selected from the given set <em>S</em>,
+					that it is certainly a point of the convex hull, taking, for example, the lexicographically
+					minor point.
+					Then, the rest of the points are ordered angularly from <em>p</em>.
+					After that, the algorithm proceeds iteratively processing every point with the
+					given order, and keeps at every step the convex hull of the points considered so far.
+					For it, at the <em>i-nth</em> iteration, the algorithm part from the convex hull
+					<em>CH<sub>i-1</sub></em> of the points <em>p,p<sub>1</sub>,...,p<sub>i-1</sub></em>.
+					If <em>p=v<sub>1</sub>,...,v<sub>k</sub></em> denotes the vertexs of <em>CH<sub>i-1</sub></em>,
+					the algorithm checks if <em>v<sub>k-1</sub>,v<sub>k</sub>,p<sub>i</sub></em> form a left turn.
+					If so, <em>CH<sub>i</sub> = CH<sub>i-1</sub> ∪ p<sub>i</sub></em>. Otherwise,
+					<em>CH<sub>i</sub> = CH<sub>i-1</sub> - v<sub>k</sub></em> and recursively is checked again
+					the orientation of the turn <em>v<sub>top-1</sub>,v<sub>top</sub>p<sub>i</sub></em> untill
+					it is a left turn. Then, the convex hull is updated and the next point can be considered.
+				</p>
+			</div>
+			<div id="halton-explanation">
+				<h4>What are the Halton sequences?</h4>
+				<p>The Halton sequences are very useful for generating random points on the plane
+					(actually pseudo-random). This sequences are constructed with a deterministic
+					method based on the coprime numbers. An example of constructing point in the
+					square <em>(0,1) X (0,1) ⊂ ℝ<sup>2</sup></em> with bases 2 and 3,
+					respectively, is as follows:</p>
+				<p>To generate the sequence of base 2, the space (0,1) is divided recursively in
+					two halves, then four parts, then eight parts, etc.</p>
+				<p class="text-center"><em>1/2, 1/4, 3/4, 1/8, 5/8, 1/16, 9/16, ...</em></p>
+				<p>Similraly, in base 3 the interval <em>(0,1)</em> is recursively divided
+					into thirds, obtaining the sequence:</p>
+				<p class="text-center"><em>1/3, 2/3, 1/9, 4/9, 7/9, 2/9, 5/9, 1/27, ...</em></p>
+				<p>Combining both sequences the following points are obtained in the square
+					<em>(0,1) X (0,1)</em>:</p>
+				<p class="text-center"><em>(1/2,1/3), (1/4,2/3), (3/4,1/9), (1/8,4/9), (5/8, 7/9)
+						(3/8,2/9), (1/16,5/9), (9/16,1/27), ...</em></p>
+			</div>
+		</div>
+
+
+<script type="text/javascript" src="Convex%20hull_files/utils_ztE_.js"></script>
+
+<script type="text/javascript" src="Convex%20hull_files/Drawable_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/Line_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/Point_ztE_.js"></script>
+
+<script type="text/javascript" src="Convex%20hull_files/DrawableView_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/LineView_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/DashedLineView_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/PointView_ztE_.js"></script>
+
+<script type="text/javascript" src="Convex%20hull_files/BinaryTree_ztE_.js"></script>
+
+<script type="text/javascript" src="Convex%20hull_files/DivideAndConquerView_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/GrahamView_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/IncrementalView_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/ConvexHullView_ztE_.js"></script>
+
+<script type="text/javascript" src="Convex%20hull_files/Halton_ztE_.js"></script>
+
+<script type="text/javascript" src="Convex%20hull_files/DivideAndConquer_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/Graham_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/Incremental_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/ConvexHull_ztE_.js"></script>
+
+<script type="text/javascript" src="Convex%20hull_files/Handler_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/PointHandler_ztE_.js"></script>
+
+<script type="text/javascript" src="Convex%20hull_files/convex_hull_ztE_.js"></script>
+<script type="text/javascript" src="Convex%20hull_files/DOM_ztE_.js"></script>
+
+<script>
+	changeCurrent();
+	changeAlgorithm();
+	displayPlayStopButtons(false);
+	assignTooltips();
+</script>
+
+</div><canvas style="display: none; width: 1202px; height: 600px;" width="2404" height="1200"></canvas></body></html>

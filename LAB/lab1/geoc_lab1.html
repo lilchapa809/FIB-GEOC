@@ -1,0 +1,350 @@
+<html>
+
+<head>
+	<title>GEOC - Lab 1</title>
+	<style>
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: #f8f9fa;
+			color: #333;
+			margin: 30px;
+		}
+
+		h1 {
+			color: #2c3e50;
+			border-bottom: 2px solid #3498db;
+			padding-bottom: 5px;
+			display: inline-block;
+		}
+
+		h2 {
+			color: #555;
+			margin-top: -10px;
+			margin-bottom: 20px;
+			font-weight: 500;
+		}
+
+		#canvas {
+			background-color: #ffffff;
+			border: 1px solid #ddd;
+			border-radius: 8px;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+			margin-top: 10px;
+			margin-bottom: 20px;
+		}
+
+		.info {
+			font-weight: 600;
+			color: #444;
+		}
+
+		#result {
+			display: inline-block;
+			background: #fff;
+			padding: 15px;
+			border-radius: 8px;
+			border: 1px solid #ddd;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+			min-width: 400px;
+			line-height: 1.6;
+		}
+
+		.layout-container {
+			display: flex;
+			gap: 20px;
+			align-items: flex-start;
+		}
+
+		#html-legend {
+			background: #fff;
+			padding: 15px;
+			border-radius: 8px;
+			border: 1px solid #ddd;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+			margin-top: 10px;
+			min-width: 320px;
+		}
+
+		.legend-item {
+			display: flex;
+			align-items: center;
+			margin-bottom: 12px;
+			font-size: 14px;
+			color: #333;
+		}
+
+		.color-box {
+			width: 16px;
+			height: 16px;
+			display: inline-block;
+			margin-right: 12px;
+			border-radius: 3px;
+			border: 1px solid #ccc;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>GEOC - Lab 1</h1>
+	<h2>Gerard Chaparro</h2>
+
+	<div class="info">Last mouse position on canvas: <span id="mousepos"></span></div>
+
+	<div class="layout-container">
+		<canvas id="canvas" width="1200" height="800"></canvas>
+		<div id="html-legend">
+			<h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 5px;">Legend
+			</h3>
+			<div class="legend-item"><span class="color-box" style="background-color: Red;"></span> Case 0: No
+				intersection</div>
+			<div class="legend-item"><span class="color-box" style="background-color: Yellow;"></span> Case 1:
+				Intersection crossing an interior point</div>
+			<div class="legend-item"><span class="color-box" style="background-color: Purple;"></span> Case 2:
+				Intersection shared endpoint</div>
+			<div class="legend-item"><span class="color-box" style="background-color: DarkBlue;"></span> Case 3:
+				Intersection type T, endpoint of s1 on interior of s2</div>
+			<div class="legend-item"><span class="color-box" style="background-color: DeepSkyBlue;"></span> Case 4:
+				Intersection type T, endpoint of s2 on interior of s1</div>
+			<div class="legend-item"><span class="color-box" style="background-color: Green;"></span> Case 5: Collinear
+				Overlap</div>
+			<div class="legend-item"><span class="color-box" style="background-color: Lime;"></span> Case 6: Collinear
+				Touch</div>
+		</div>
+	</div>
+	<br>
+
+	<script type="text/javascript" src="test_bugs.json.js"></script>
+
+	<h2 style="margin-top: 10px;">Result of Gerard's intersection classification</h2>
+	<div id="result"></div>
+
+	<script type="text/javascript">
+
+		//========= Auxiliary objects and data =========//
+
+		// Important: this is the input
+		var segments = inputJSON.segments; // Requires inputJSON variable set in file
+		//var segments = inputJSON.segments.slice(0,6); // You can use slice() to select a subset of the segments. Make sure it is an even number!
+
+		var points = [];
+		// See names colors at https://www.w3schools.com/colors/colors_names.asp
+		// Add as many colors as needed to classify all intersection types
+
+		// Case 0 --> Red: No intersection
+		// Case 1 --> Yellow: Intersection crossing an interior point 
+		// Case 2 --> Purple: Intersection shared endpoint
+		// Case 3 --> DarkBlue: Intersection type T, endpoint of s1 on interior of s2
+		// Case 4 --> DeepSkyBlue: Intersection type T, endpoint of s2 on interior of s1
+		// Case 5 --> Green: Collinear Overlap, segment is inside the other segment
+		// Case 6 --> Lime: Collinear Touch, segments are at the same line but share an endpoint
+		var colors = ['Red', 'Yellow', 'Purple', 'DarkBlue', 'DeepSkyBlue', 'Green', 'Lime'];
+
+
+		// default styles
+		style = {
+			curve: {
+				width: 6,
+				color: "#333"
+			},
+			line: {
+				width: 1,
+				color: "#C00"
+			},
+			point: {
+				radius: 4,
+				width: 2,
+				color: "Black",
+				fill: "Black",
+				arc1: 0,
+				arc2: 2 * Math.PI
+			}
+		}
+
+
+
+		context1 = canvas.getContext("2d");
+		drawCanvas();
+
+		//========= Auxiliary functions =========//
+
+		// Method to show mouse position relative to canvas as the mouse moves.
+		canvas.addEventListener('mousemove', function (e) {
+			var rect = canvas.getBoundingClientRect();
+			var x = e.clientX - Math.round(rect.left);
+			var y = e.clientY - Math.round(rect.top);
+			document.getElementById("mousepos").innerHTML = "(" + x + ", " + y + ")";
+		});
+
+		function drawCanvas() {
+			// Clear everything
+			context1.clearRect(-canvas.width / 2, -canvas.height / 2, 2 * canvas.width, 2 * canvas.height);
+			// Draw whatever needs to be drawn
+			drawSegments(context1, style, segments);
+		}
+
+		// Draws one point as circle
+		function drawPoint(ctx, style, p) {
+			ctx.lineWidth = style.point.width;
+			ctx.strokeStyle = style.point.color;
+			ctx.fillStyle = style.point.fill;
+			ctx.beginPath();
+			ctx.arc(p.x, p.y, style.point.radius, style.point.arc1, style.point.arc2, true);
+			ctx.fill();
+			ctx.stroke();
+		}
+
+		// Draws one segment
+		function drawSegment(ctx, style, segment, lineColor, label) {
+			p1 = segment.from;
+			p2 = segment.to;
+
+			// Line segment
+			ctx.lineWidth = style.line.width;
+			ctx.strokeStyle = lineColor;
+			ctx.beginPath();
+			ctx.moveTo(p1.x, p1.y);
+			ctx.lineTo(p2.x, p2.y);
+			ctx.stroke();
+
+			// Draw vertices
+			drawPoint(ctx, style, segment.from);
+			drawPoint(ctx, style, segment.to);
+
+			// Draw label if provided
+			if (label) {
+				ctx.fillStyle = "black";
+				ctx.font = "bold 14px Arial";
+				ctx.fillText(label, p1.x + 8, p1.y - 8);
+			}
+		}
+
+		// Draws all segments
+		function drawSegments(ctx, style, segments) {
+			//For each pair draw pair after classifying intersection
+
+			for (var i = 0; i < segments.length; i = i + 2) {
+				// Classify intersection and obtain color to draw pair of segments
+				var intersectionClass = classifyIntersection(segments[i], segments[i + 1]);
+				reportResult(intersectionClass); // print description
+				var lineColor = colors[intersectionClass.type];
+				// Draw segment 
+				drawSegment(ctx, style, segments[i], lineColor, "s1");
+				drawSegment(ctx, style, segments[i + 1], lineColor, "s2");
+			}
+		}
+
+		// Outputs the value of the intersection classification to the "results" HTML element
+		function reportResult(intersectionClass) {
+			var text = "<font color='" + colors[intersectionClass.type] + "'>";
+			text = text + intersectionClass.type + ": " + intersectionClass.description;
+			text = text + "</font><br>";
+			document.getElementById("result").innerHTML = document.getElementById("result").innerHTML + text;
+		}
+
+		//========= LAB 1 CODE =========//
+
+		/** NOTES:
+		  * in a graphic system the (0,0) lies on top-left
+		  * so what if we see an r point laying on the left side of a pq segment
+		  * in reality the determinant is < 0 (because of the inverted y axis, is a right turn)	
+		*/
+
+		// My Auxiliar Functions
+
+		// Orientation test, returns: 1 (left), -1 (right), or 0 (collinear)
+		// Does the determinant of vectors pq and pr
+		function orientation(p, q, r) {
+			// the determinant is obtained by the cross product of vectors pq and pr
+			var det = (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
+
+			// The (0,0) of the y-axis is at top-left, everything is inverted
+			if (det > 0) return -1; // Visually Right on Canvas
+			if (det < 0) return 1; // Visually Left on Canvas
+			return 0; //collinear
+		}
+
+		// Collinear Test
+		// Given points p, q, r are collinear, checks if r lies exactly on the segment pq.
+		function onSegment(p, q, r) {
+			// Checks if r.x is between p.x and q.x
+			var x_axis_check = r.x <= Math.max(p.x, q.x) && r.x >= Math.min(p.x, q.x);
+			// Checks if r.y is between p.y and q.y 
+			var y_axis_check = r.y <= Math.max(p.y, q.y) && r.y >= Math.min(p.y, q.y);
+
+			// If both checks pass, r is on the segment pq
+			return x_axis_check && y_axis_check;
+		}
+
+		// Checks if two points are equal
+		function pointsEqual(p, q) {
+			return p.x == q.x && p.y == q.y;
+		}
+
+		// Main Classification Function given two segments
+		function classifyIntersection(s1, s2) {
+			//segment example: s = {from: {'x':100, 'y':200}, to:{'x':300, 'y':300}}
+			var p = s1.from;
+			var q = s1.to;
+			var a = s2.from;
+			var b = s2.to;
+
+			// Calculate the four relevant orientations
+			var o1 = orientation(p, q, a); // a relative to pq
+			var o2 = orientation(p, q, b); // b relative to pq
+			var o3 = orientation(a, b, p); // p relative to ab
+			var o4 = orientation(a, b, q); // q relative to ab
+
+			// Check for intersection crossing an interior point (proper intersection)
+			// Endpoints of one segment lie on opposite sides of the other segment (and vice versa)
+			if (o1 != o2 && o3 != o4 && o1 != 0 && o2 != 0 && o3 != 0 && o4 != 0) {
+				return { type: 1, description: "Intersection crossing an interior point." };
+			}
+
+			// Check for completely collinear
+			if (o1 == 0 && o2 == 0 && o3 == 0 && o4 == 0) {
+				// Check if they overlap
+				var a_on_s1 = onSegment(p, q, a);
+				var b_on_s1 = onSegment(p, q, b);
+				var p_on_s2 = onSegment(a, b, p);
+				var q_on_s2 = onSegment(a, b, q);
+
+				if (a_on_s1 || b_on_s1 || p_on_s2 || q_on_s2) {
+					// Check if they share just an endpoint or a segment
+					if (pointsEqual(p, a) || pointsEqual(p, b) || pointsEqual(q, a) || pointsEqual(q, b)) {
+						// If the sum of "onSegment" tests is exactly 2, they only touch at one endpoint
+						var count = 0
+						if (a_on_s1) count++;
+						if (b_on_s1) count++;
+						if (p_on_s2) count++;
+						if (q_on_s2) count++;
+
+						if (count === 2) {
+							return { type: 6, description: "Collinear: Touch at exactly one endpoint" };
+						}
+					}
+					return { type: 5, description: "Collinear: Segments overlap (intersection is a segment)" };
+				}
+				else { //No intersection
+					return { type: 0, description: "No intersection (collinear)" };
+				}
+			}
+
+			// Check for Shared Endpoints (V-Shape), we already checked that are not collinear
+			if (pointsEqual(p, a) || pointsEqual(p, b) || pointsEqual(q, a) || pointsEqual(q, b)) {
+				return { type: 2, description: "Intersect at exactly one shared endpoint (V-Shape)" };
+			}
+
+			// Check for T-Intersection (no need to be 90 degrees)
+			// One endpoint lies perfectly on the interior of the other segment
+			if (o1 === 0 && onSegment(p, q, a)) return { type: 4, description: "T-Intersection: Endpoint of s2 on interior of s1" };
+			if (o2 === 0 && onSegment(p, q, b)) return { type: 4, description: "T-Intersection: Endpoint of s2 on interior of s1" };
+			if (o3 === 0 && onSegment(a, b, p)) return { type: 3, description: "T-Intersection: Endpoint of s1 on interior of s2" };
+			if (o4 === 0 && onSegment(a, b, q)) return { type: 3, description: "T-Intersection: Endpoint of s1 on interior of s2" };
+
+			// Default (No Intersection)
+			return { type: 0, description: "No intersection" };
+		}
+
+	</script>
+
+</html>

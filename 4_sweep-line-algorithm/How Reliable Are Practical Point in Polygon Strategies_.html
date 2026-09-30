@@ -1,0 +1,262 @@
+<html data-lt-installed="true"><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>How Reliable Are Practical Point in Polygon Strategies?</title>
+<meta content="point in polygon, computational geometry, geometric algorithm engineering, source code" name="keywords">
+<meta content="companion pages to ESA paper How Reliable Are Practical Point in Polygon Strategies?" name="description">
+</head>
+<body bgcolor="#ffffff">
+<font face="arial">
+<h1>How Reliable Are Practical Point in Polygon Strategies?</h1>
+
+<a href="http://wwwisg.cs.uni-magdeburg.de/~stschirr/">Stefan Schirra</a><br>
+
+<p>
+News:<br>
+<br>
+<table>
+<tbody><tr>
+<td align="RIGHT"><font size="-1">Sep 11, 2008</font></td>
+<td width="15"></td>
+<td><font size="-1">Polygon data updated. "Random" orthogonal polygons have been
+added and all real-world polygons are counterclockwise oriented now.
+</font></td>
+</tr>
+<tr>
+<td align="RIGHT"><font size="-1">Sep 11, 2008</font></td>
+<td width="15"></td>
+<td><font size="-1">Documentation updated.
+</font></td>
+</tr>
+<tr><td align="RIGHT"><font size="-1">Sep 10, 2008</font></td>
+<td width="15"></td>
+<td><font size="-1">The crossing number code from 
+<a href="http://www.realtimerendering.com/index_rtr2.html">Real-Time Rendering (2nd ed.)</a> has been added to the set of strategies</font></td>
+</tr>
+
+</tbody></table>
+<br>
+
+</p><p>
+<table align="RIGHT"><tbody><tr><td><img align="TOP" src="How%20Reliable%20Are%20Practical%20Point%20in%20Polygon%20Strategies__files/Spnpoly_Koeln_Yi6t.gif"></td></tr></tbody></table>
+These are companion pages to "How Reliable Are Practical Point in Polygon Strategies?" (<a href="http://wwwisg.cs.uni-magdeburg.de/ag/pointInPolygonReliability/pointPolygon.pdf">preliminary version</a>), 
+presented at <a href="http://algo2008.org/doku.php/esa">ESA 2008</a>.
+We study reliabilty, i.e., correctness and numerical robustness, of a 
+number of strategies for testing whether a given point is contained in a
+ given simple closed polygon. We experimentally compare several 
+implementations, most of them publicy available on the world wide web. 
+The selected code includes strategies from <a href="http://www.erichaines.com/">Eric Haines</a> beautiful article on <a href="http://www.erichaines.com/ptinpoly/">Point in Polygon Strategies</a> published in Graphics Gems IV. 
+<br>
+<br>
+</p><h3>Point-in-Polygon Tests</h3>
+Our test set includes point-in-polygon code called 
+<ul>
+<li><i>crossings</i>  
+</li><li><i>weiler</i>  
+</li><li><i>halfplane</i>  
+</li><li><i>barycentric</i>  
+</li><li><i>spackman</i>  
+</li><li><font size="-1">PNPOLY</font>  
+</li><li><i>csg</i>  
+</li><li><font size="-1">RTR</font>
+</li><li><font size="-1">CGAL</font>
+</li></ul>
+<i>crossings</i>, <i>halfplane</i>, <i>barycentric</i>, and <i>spackman</i>
+belong to the methods discussed in <a href="http://www.erichaines.com/ptinpoly/">Point in Polygon Strategies</a>. The associated <a href="http://tog.acm.org/GraphicsGems/gemsiv/ptpoly_haines/">code</a> is available online. This C-code was used as is, besides that we
+changed function declarations and definitions from K&amp;R-style to ANSI style for use
+within C++. <i>weiler</i> is another method discussed in an article published in Graphics Gems IV. Haines' code includes C-code for <i>weiler</i> as well. We refer to <a href="http://www.erichaines.com/ptinpoly/">Point in Polygon Strategies</a> for a discussion of these methods.
+<font size="-1">PNPOLY</font> is another implementation of a crossing number algorithm by <a href="http://wrfranklin.org/">W.R. Franklin</a>, see <a href="http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html">PNPOLY-Point Inclusion in Polygon Test</a>. Corresponding <a href="http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html">C-code</a> (only a few lines of code!) is available on this page as well.
+<i>csg</i> is an implementation of a method discussed in "Practical Point-in-Polygon Tests Using CSG Representations of Polygons" by <a href="http://pages.cpsc.ucalgary.ca/~rwalker/">R. Walker</a> and <a href="http://www.cs.unc.edu/~snoeyink/">J. Snoeyink</a>.
+The code is not publicy available and hence not included on this page. 
+Thanks to Robert Walker for making his code available to us. Finally <font size="-1">CGAL</font> is template code from the Computational Geometry Algorithms Library <a href="http://wwwisg.cs.uni-magdeburg.de/ag/pointInPolygonReliability/www.cgal.org">CGAL</a> instantiated with CGAL's simple Cartesian kernel using double precision arithmetic. 
+<font size="-1">RTRL</font> is the crossing number algorithm presented in
+<a href="http://www.realtimerendering.com/index_rtr2.html">Real-Time Rendering (2nd ed.)</a> on page 585. The authors of the book refer to Haines' code there, 
+although that code is different. We "adapted" the code from the book. 
+
+<p>
+For convenience our experiments make use of <a href="http://wwwisg.cs.uni-magdeburg.de/ag/pointInPolygonReliability/www.cgal.org">CGAL</a> and
+<a href="http://www.algorithmic-solutions.com/leda/index.htm">LEDA</a> (note 
+that there is a <a href="http://www.algorithmic-solutions.com/leda/ledak/index.htm">LEDA</a> free editon of LEDA available again which suffices for our purpose).
+LEDA is used for correctness checking and visualisation of experimental results.
+Thus, strictly speaking, you need both libraries in order to rerun the experiments.
+<br>
+<br>
+</p><h3>Polygon Data</h3>
+Our <a href="http://wwwisg.cs.uni-magdeburg.de/ag/pointInPolygonReliability/data/polygondata.tgz">polygon test data</a> 
+used in the reported experiments include
+real-world polygons as well as "random" polygons. The random polygons are
+generated by a CGAL generator using the 2-opt heuristic for a random point set.
+You may also create random polygons with <a href="http://www.cosy.sbg.ac.at/~held/projects/rpg/rpg.html">RPG</a> which provides additional heuristics for generating random polygons besides 2-opt.
+Thanks to Martin Held for making RPG availbale to us. 
+The test polygons now also include some "random" orthogonal polygons,
+i.e. polygons with axis-parallel edges. 
+Thanks to Ana Paula Tomas for making the inflate-cut code availbale to us. 
+All polygons were scaled to the unit square.
+<p>
+<table width="100%">
+<tbody><tr>
+<td align="center"><img border="0" src="How%20Reliable%20Are%20Practical%20Point%20in%20Polygon%20Strategies__files/real304_Yi6t.gif"></td>
+<td align="center"><img border="0" src="How%20Reliable%20Are%20Practical%20Point%20in%20Polygon%20Strategies__files/random256_Yi6t.gif"></td>
+<td align="center"><img border="0" src="How%20Reliable%20Are%20Practical%20Point%20in%20Polygon%20Strategies__files/orthogonal256_Yi6t.gif"></td>
+<!--
+<TD align=center><IMG BORDER=0 SRC=images/artificial12.gif></TD>
+-->
+</tr>
+</tbody></table>
+
+<br>
+<br>
+</p><h3>Query Point Data</h3>
+We used a number of generators to produce "difficult" query point set instances, 
+namely query points (almost) on the edges of a polygon, 
+query points on the "diagonals" of a polygon used by the triangle-fan based 
+algorithms <i>barycentric</i>, <i>halfplane</i>, and <i>spackman</i>, 
+points on horizontals and verticals through the vertices of a polygon,
+query points on the supporting lines of the edges of a polygon, and query points
+near the vertices of a polygon:
+<br>
+<br>
+<p>
+<table width="100%">
+<tbody><tr>
+<td align="center"><img border="0" src="How%20Reliable%20Are%20Practical%20Point%20in%20Polygon%20Strategies__files/onSegments_Yi6t.gif"></td>
+<td align="center"><img border="0" src="How%20Reliable%20Are%20Practical%20Point%20in%20Polygon%20Strategies__files/onDiagonals_Yi6t.gif"></td>
+<td align="center"><img border="0" src="How%20Reliable%20Are%20Practical%20Point%20in%20Polygon%20Strategies__files/crossesAtVertices_Yi6t.gif"></td>
+<td align="center"><img border="0" src="How%20Reliable%20Are%20Practical%20Point%20in%20Polygon%20Strategies__files/onLines_Yi6t.gif"></td>
+</tr>
+</tbody></table>
+<br>
+</p><p>
+<font face="arial">
+<table border="0" cellspacing="2" cellpadding="0" width="900">
+  <tbody><tr><td align="LEFT" valign="TOP" width="100%" colspan="3">
+       <i><nobr>template &lt; class InputIterator, class OutputIterator &gt;</nobr></i>
+      </td>
+  </tr>
+  <tr><td align="LEFT" valign="TOP" width="20%" nowrap="nowrap">
+        <i><nobr>OutputIterator</nobr></i>
+      </td>
+      <td align="LEFT" valign="TOP" width="80%" nowrap="nowrap" colspan="2">
+        <i><nobr>p_o_s ( InputIterator first, InputIterator beyond, OutputIterator res,  int per_edge)</nobr></i>
+      </td>
+   </tr>
+   <tr><td width="20%" nowrap="nowrap">
+       </td>
+       <td width="10%" nowrap="nowrap">
+       </td>
+       <td align="LEFT" valign="TOP" width="70%"><font size="-1">
+         computes <i>per_edge</i> query points on each edge of the polygon defined by the point range [first, beyond) and reports these points via <i>res</i>. Points on the edges are generated using <i>CGAL::points_on_segment_2</i>.
+ If we use double precision floating-point arithmetic to compute the 
+points, they are not necessarily exactly on the edges. For each edge 
+both the start point and the target point are among the generated query 
+points.</font> 
+       </td>
+   </tr>
+
+  <tr><td align="LEFT" valign="TOP" width="100%" colspan="3"><br>
+       <i><nobr>template &lt; class InputIterator, class OutputIterator &gt;</nobr></i>
+      </td>
+  </tr>
+  <tr><td align="LEFT" valign="TOP" width="20%" nowrap="nowrap">
+        <i><nobr>OutputIterator</nobr></i>
+      </td>
+      <td align="LEFT" valign="TOP" width="80%" nowrap="nowrap" colspan="2">
+        <i><nobr>p_o_d ( InputIterator first, InputIterator beyond, OutputIterator res,  int per_diagonal)</nobr></i>
+      </td>
+   </tr>
+   <tr><td width="20%" nowrap="nowrap">
+       </td>
+       <td width="10%" nowrap="nowrap">
+       </td>
+       <td align="LEFT" valign="TOP" width="70%"><font size="-1">
+         computes <i>per_diagonal</i> query points on each line segment 
+that connects the first point of the polygon with another point on the 
+polygon and reports these points via <i>res</i>. Points on these "diagonals" are generated using <i>CGAL::points_on_segment_2</i>.
+ If we use double precision floating-point arithmetic to compute the 
+points, they are not necessarily exactly on the edges. For each edge 
+both the start point and the target point are among the generated query 
+points.</font> 
+       </td>
+   </tr>
+
+  <tr><td align="LEFT" valign="TOP" width="100%" colspan="3"><br>
+       <i><nobr>template &lt; class InputIterator, class OutputIterator &gt;</nobr></i>
+      </td>
+  </tr>
+  <tr><td align="LEFT" valign="TOP" width="20%" nowrap="nowrap">
+        <i><nobr>OutputIterator</nobr></i>
+      </td>
+      <td align="LEFT" valign="TOP" width="80%" nowrap="nowrap" colspan="2">
+        <i><nobr>p_c_v ( InputIterator first, InputIterator beyond, OutputIterator res,  int per_crossline)</nobr></i>
+      </td>
+   </tr>
+   <tr><td width="20%" nowrap="nowrap">
+       </td>
+       <td width="10%" nowrap="nowrap">
+       </td>
+       <td align="LEFT" valign="TOP" width="70%"><font size="-1">
+         computes <i>per_crossline</i> query points on both the 
+horizontal and the vertical line through each vertex, more precisely, on
+ the intersection of these lines with the unit square, and reports these
+ points via <i>res</i>. Points on these horizontal and vertical segments are generated using <i>CGAL::points_on_segment_2</i>. </font> 
+       </td>
+   </tr>
+
+  <tr><td align="LEFT" valign="TOP" width="100%" colspan="3"><br>
+       <i><nobr>template &lt; class InputIterator, class OutputIterator &gt;</nobr></i>
+      </td>
+  </tr>
+  <tr><td align="LEFT" valign="TOP" width="20%" nowrap="nowrap">
+        <i><nobr>OutputIterator</nobr></i>
+      </td>
+      <td align="LEFT" valign="TOP" width="80%" nowrap="nowrap" colspan="2">
+        <i><nobr>p_o_l ( InputIterator first, InputIterator beyond, OutputIterator res,  int per_egde)</nobr></i>
+      </td>
+   </tr>
+   <tr><td width="20%" nowrap="nowrap">
+       </td>
+       <td width="10%" nowrap="nowrap">
+       </td>
+       <td align="LEFT" valign="TOP" width="70%"><font size="-1">
+         computes <i>per_egde</i> query points on the intersection 
+segment of the lines supporting the polygon edges with the unit square 
+and reports these points via <i>res</i>. Points on these horizontal and vertical segments are generated using <i>CGAL::points_on_segment_2</i>. If we use double precision floating-point arithmetic to compute the points, they are not necessarily exactly on the lines. </font> 
+       </td>
+   </tr>
+
+</tbody></table>
+
+<br>
+</font>
+<br>
+<br>
+</p><h3>Testbed Code</h3>
+We use <a href="http://www.literateprogramming.com/">Literate Programming</a> using
+LEDA's tools based on noweb. The following preliminary(!) Lweb and noweb files 
+provide our testbed code (including query point generators, 
+but not the point-in-polygon code itself) and documentation. 
+
+<br>
+<ul>
+<li><a href="http://wwwisg.cs.uni-magdeburg.de/ag/pointInPolygonReliability/downloads/ReliabilityExperiments.lw">ReliabilityExperiments.lw</a> (Lweb source)
+</li><li><a href="http://wwwisg.cs.uni-magdeburg.de/ag/pointInPolygonReliability/downloads/ReliabilityExperiments.lw">ReliabilityExperiments.nw</a> (noweb source -- if you don't have the LEDA tools)
+</li><li><a href="http://wwwisg.cs.uni-magdeburg.de/ag/pointInPolygonReliability/downloads/ReliabilityExperiments.pdf">Documentation</a>
+</li></ul>
+
+As said above, we use both CGAL and LEDA and you need noweb to extract 
+the test file like this:
+<br>
+<br>
+ <tt>notangle -L -R'main' ReliabilityExperiments.lw &gt; pip.C</tt>
+<br>
+
+<br>
+<p>
+</p><center>
+<img border="0" width="200" height="165" src="How%20Reliable%20Are%20Practical%20Point%20in%20Polygon%20Strategies__files/under-construction2_Yi6t.gif">
+<br>
+<br>
+This page is always under construction!
+</center>
+<br>
+<br>
+
+</font></body></html>
