@@ -1,159 +1,331 @@
 <html>
+
 <head>
-<title>GEOC - Lab 2</title>
+  <title>GEOC - Lab 2</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      margin: 30px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      display: inline-block;
+    }
+
+    h2 {
+      color: #555;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    #canvas {
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    .info {
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    form {
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    select {
+      font-family: inherit;
+      font-size: 14px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+    }
+
+    #result {
+      display: inline-block;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      min-width: 400px;
+      line-height: 1.6;
+    }
+
+    .layout-container {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    #html-legend {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      margin-top: 10px;
+      min-width: 320px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .color-box {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      margin-right: 12px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 
-<h1>GEOC - Lab 2</h1>
-<br>
-Last mouse position on canvas: <span id="mousepos"></span>
-<br>
-<canvas id="canvas" width="600" height="600"></canvas>
+<body>
+  <h1>GEOC - Lab 2</h1>
+  <h2>Gerard Chaparro</h2>
 
-<!---- load all three input files ----->
-<script type="text/javascript" src="TestLab2_1.json.js"></script>
-<script type="text/javascript" src="TestLab2_2.json.js"></script>
-<script type="text/javascript" src="TestLab2_3.json.js"></script>
+  <div class="info">Last mouse position on canvas: <span id="mousepos"></span></div>
 
-<form>
-Input data set:
-<select id="dataset" onchange="changeDataSet()">
-  <option value="0">Test set 1</option>
-  <option value="1">Test set 2</option>
-  <option value="2">Test set 3</option>
-</select>
-</form>
+  <!---- load all input files ----->
+  <script type="text/javascript" src="TestLab2_1.json.js"></script>
+  <script type="text/javascript" src="TestLab2_2.json.js"></script>
+  <script type="text/javascript" src="TestLab2_3.json.js"></script>
+  <script type="text/javascript" src="test_bugs.json.js"></script>
 
+  <form>
+    Input data set:
+    <select id="dataset" onchange="changeDataSet()">
+      <option value="0">Test set 1</option>
+      <option value="1">Test set 2</option>
+      <option value="2">Test set 3</option>
+      <option value="3">Bug Search / Edge Cases</option>
+    </select>
+  </form>
 
-<p>
-Note: show result by coloring each point differently depending on its situation with respect to the triangle. <b>Explain in the HTML the meaning of each color</b>.
-</p>
+  <div class="layout-container">
+    <canvas id="canvas" width="600" height="600"></canvas>
+    <div id="html-legend">
+      <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 5px;">Legend
+      </h3>
+      <div class="legend-item"><span class="color-box" style="background-color: Green;"></span> Case 1 (Interior):
+        The point lies strictly inside the triangle</div>
+      <div class="legend-item"><span class="color-box" style="background-color: Red;"></span> Case 2 (Exterior):
+        The point lies strictly outside the triangle</div>
+      <div class="legend-item"><span class="color-box" style="background-color: Blue;"></span> Case 3 (Boundary -
+        Vertex): The point coincides with a vertex of the triangle</div>
+      <div class="legend-item"><span class="color-box" style="background-color: DarkOrange;"></span> Case 4
+        (Boundary - Edge): The point lies on the interior of an edge</div>
+    </div>
+  </div>
+  <br>
 
-<h2>Result of (an absurd) classification</h2>
-<span id="result"></span>
+  <h2 style="margin-top: 10px;">Result of Gerard's point-in-triangle classification</h2>
+  <div id="result"></div>
 
-<script type="text/javascript">
+  <script type="text/javascript">
 
-//========= Auxiliary objects and data =========//
+    //========= Auxiliary objects and data =========//
 
-// Important: these are the input data sets
-var inputJSONs = [inputJSON1,inputJSON2,inputJSON3] ; 
+    // Important: these are the input data sets
+    var inputJSONs = [inputJSON1, inputJSON2, inputJSON3, test_bugs];
 
-var points = inputJSONs[0].points; // Default data set
-var triangle = inputJSONs[0].triangle;
+    var points = inputJSONs[0].points; // Default data set
+    var triangle = inputJSONs[0].triangle;
 
-// See names colors at https://www.w3schools.com/colors/colors_names.asp
-// Some colors you could use
-var colors = ['Blue', 'Red', 'Green', 'Cyan', 'DarkOrange', 'Magenta', 'RosyBrown'];
+    // See names colors at https://www.w3schools.com/colors/colors_names.asp
+    // Some colors you could use
+    // Case 1 --> Green: Interior point
+    // Case 2 --> Red: Exterior point
+    // Case 3 --> Blue: Boundary point coinciding with a vertex
+    // Case 4 --> DarkOrange: Boundary point on the interior of an edge
+    var colors = ['Blue', 'Red', 'Green', 'Cyan', 'DarkOrange', 'Magenta', 'RosyBrown'];
 
-// default styles
-style = {
-  curve: {
-    width: 6,
-    color: "#333"
-  },
-  line: {
-    width: 1,
-    color: "#000"
-  },
-  point: {
-    radius: 4,
-    width: 2,
-    color: "Black",
-    fill: "Black",
-    arc1: 0,
-    arc2: 2 * Math.PI
-  }
-}
+    // default styles
+    style = {
+      curve: {
+        width: 6,
+        color: "#333"
+      },
+      line: {
+        width: 1,
+        color: "#000"
+      },
+      point: {
+        radius: 4,
+        width: 2,
+        color: "Black",
+        fill: "Black",
+        arc1: 0,
+        arc2: 2 * Math.PI
+      }
+    }
 
-context1 = canvas.getContext("2d");
-const canvDelta = 150;
-context1.translate(canvDelta,canvDelta); // Translation so see full points
-drawCanvas();
+    context1 = canvas.getContext("2d");
+    const canvDelta = 150;
+    context1.translate(canvDelta, canvDelta); // Translation so see full points
+    drawCanvas();
 
-//========= Auxiliary functions =========//
+    //========= Auxiliary functions =========//
 
-// Method to show mouse position relative to canvas as the mouse moves.
-canvas.addEventListener('mousemove', function(e) {
-	var rect = canvas.getBoundingClientRect();
-	var x = e.clientX - Math.round(rect.left);
-	var y = e.clientY - Math.round(rect.top);
-	document.getElementById("mousepos").innerHTML = "(" + (x-canvDelta) + ", " + (y-canvDelta) + ")";
-});
+    // Method to show mouse position relative to canvas as the mouse moves.
+    canvas.addEventListener('mousemove', function (e) {
+      var rect = canvas.getBoundingClientRect();
+      var x = e.clientX - Math.round(rect.left);
+      var y = e.clientY - Math.round(rect.top);
+      document.getElementById("mousepos").innerHTML = "(" + (x - canvDelta) + ", " + (y - canvDelta) + ")";
+    });
 
+    function drawCanvas() {
+      // Clear everything
+      context1.clearRect(-canvas.width / 2, -canvas.height / 2, 2 * canvas.width, 2 * canvas.height);
+      document.getElementById("result").innerHTML = "";
+      // Draw stuff
+      drawPoints(context1, style, points, triangle);
+      drawTriangle(context1, style, triangle);
+    }
 
-function drawCanvas() {
-  // Clear everything
-  context1.clearRect(-canvas.width / 2, -canvas.height / 2, 2 * canvas.width, 2 * canvas.height);
-  document.getElementById("result").innerHTML = "";
-  // Draw stuff
-  drawPoints(context1, style, points, triangle); 
-  drawTriangle(context1, style, triangle);
+    // Draws one point as circle and its numbered label
+    function drawPoint(ctx, style, p, label) {
+      ctx.lineWidth = style.point.width;
+      ctx.strokeStyle = style.point.color;
+      ctx.fillStyle = style.point.fill;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, style.point.radius, style.point.arc1, style.point.arc2, true);
+      ctx.fill();
+      ctx.stroke();
 
-}
+      // Draw label if provided
+      if (label !== undefined) {
+        ctx.fillStyle = style.point.color;
+        ctx.font = "bold 14px Arial";
+        ctx.fillText(label, p.x + 8, p.y - 8);
+      }
+    }
 
-// Draws one point as circle
-function drawPoint(ctx, style, p) {
-    ctx.lineWidth = style.point.width;
-    ctx.strokeStyle = style.point.color;
-    ctx.fillStyle = style.point.fill;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, style.point.radius, style.point.arc1, style.point.arc2, true);
-    ctx.fill();
-    ctx.stroke();
-}
+    // Draws one triangle
+    function drawTriangle(ctx, style, t) {
+      ctx.lineWidth = style.line.width;
+      ctx.strokeStyle = style.line.color;
+      ctx.beginPath();
+      ctx.moveTo(t[0].x, t[0].y);
+      ctx.lineTo(t[1].x, t[1].y);
+      ctx.lineTo(t[2].x, t[2].y);
+      ctx.lineTo(t[0].x, t[0].y);
+      ctx.stroke();
+    }
 
-// Draws one triangle
-function drawTriangle(ctx, style, t) {
-	ctx.lineWidth = style.line.width;
-	ctx.strokeStyle = style.line.color;
-    ctx.beginPath();
-	ctx.moveTo(t[0].x,t[0].y);
-	ctx.lineTo(t[1].x,t[1].y);
-	ctx.lineTo(t[2].x,t[2].y);
-	ctx.lineTo(t[0].x,t[0].y);
-    ctx.stroke();
-}
+    // Draws all input points, with its classification color
+    function drawPoints(ctx, style, points, triangle) {
 
+      for (var i = 0; i < points.length; i++) {
 
-// Draws all input points, with its classification color
-function drawPoints(ctx, style, points, triangle) {
+        var result = classifyPoint(points[i], triangle);
+        style.point.fill = result.color;
+        style.point.color = result.color;
+        reportResult(result, i);
+        drawPoint(ctx, style, points[i], i + 1);
+      }
+    }
 
-	for (var i = 0; i < points.length; i++) {
-	
-		var result = classifyPoint(points[i], triangle);
-		style.point.fill = result.color;
-		style.point.color = result.color;
-		reportResult (result, i);
-		drawPoint(ctx, style, points[i]);
-	}
-}
+    // Outputs the value of the intersection classification to the "results" HTML element
+    function reportResult(classification, index) {
+      var p = points[index];
+      var text = "<font color='" + classification.color + "'><b>" + (index + 1) + " (" + p.x + ", " + p.y + "):</b> ";
+      text = text + classification.description;
+      text = text + "</font><br>";
+      document.getElementById("result").innerHTML = document.getElementById("result").innerHTML + text;
+    }
 
-// Outputs the value of the intersection classification to the "results" HTML element
-function reportResult(classification, index) {
-	var text = "<font color='" + classification.color + "'>" + (index+1) + ":";
-	text = text + classification.description;
-	text = text + "</font><br>";
-	document.getElementById("result").innerHTML = document.getElementById("result").innerHTML + text;
-}
+    // Method to choose between the different data set
+    function changeDataSet() {
+      var index = document.getElementById("dataset").value;
+      // Change points and triangle
+      points = inputJSONs[index].points; // Default data set
+      triangle = inputJSONs[index].triangle;
+      drawCanvas(); // Redraw
+    }
 
-// Method to choose between the different data set
-function changeDataSet() {
-	var index = document.getElementById("dataset").value;
-	// Change points and triangle
-	points = inputJSONs[index].points; // Default dat set
-	triangle = inputJSONs[index].triangle;
-	drawCanvas(); // Redraw
-}
+    //========= LAB 2 CODE =========//
 
-//========= Your code somewhere here =========//
+    // My Auxiliar Functions
 
-// TODO: Add your code here to classify the point w.r.t. the triangle
-function classifyPoint(p, triangle) {
-	// TODO Change this!
-	var color = colors[Math.floor(Math.random()*5)];
-	var description = "Random classification with color " + color;
-	return {"color": color, "description": description} ;
-}
+    // Orientation test, returns: 1 (left), -1 (right), or 0 (collinear)
+    function orientation(p, q, r) {
+      var det = (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
 
-</script>
+      //Inverted because of the y-axis
+      if (det > 0) return -1; // Right on Canvas
+      if (det < 0) return 1; // Left on Canvas
+      return 0; //collinear
+    }
+
+    // Main Classification Function given a point p and a triangle
+    function classifyPoint(p, triangle) {
+      var t0 = triangle[0];
+      var t1 = triangle[1];
+      var t2 = triangle[2];
+
+      // Calculate the three relevant orientations with respect to the triangle's directed edges
+      var o1 = orientation(t0, t1, p); // p relative to edge t0-->t1
+      var o2 = orientation(t1, t2, p); // p relative to edge t1-->t2
+      var o3 = orientation(t2, t0, p); // p relative to edge t2-->t0
+
+      // Case 1: Interior point
+      // if all three orientation tests have the same sign (works for both CW and CCW)
+      if ((o1 > 0 && o2 > 0 && o3 > 0) || (o1 < 0 && o2 < 0 && o3 < 0)) {
+        return {
+          "color": "Green",
+          "description": "The point lies in the interior of the triangle."
+        };
+      }
+
+      // Case 3: Point in a vertex
+      // Point is collinear with two edges (o_x == 0)
+      if ((o1 === 0 && o2 === 0) || (o2 === 0 && o3 === 0) || (o3 === 0 && o1 === 0)) {
+        return {
+          "color": "Blue",
+          "description": "The point lies on the boundary and coincides with a vertex of the triangle."
+        };
+      }
+
+      // Case 4: Point in an edge 
+      // One orientation is collinear (0) and the other two have the same sign
+      if ((o1 === 0 && o2 === o3) || (o2 === 0 && o1 === o3) || (o3 === 0 && o1 === o2)) {
+        return {
+          "color": "DarkOrange",
+          "description": "The point lies on the boundary (on the interior of an edge)."
+        };
+      }
+
+      // Case 2: Exterior point
+      return {
+        "color": "Red",
+        "description": "The point lies in the exterior of the triangle."
+      };
+    }
+
+  </script>
+</body>
+
 </html>

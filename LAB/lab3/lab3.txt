@@ -1,0 +1,20 @@
+GEOC
+
+3. Point-in-circle test
+
+Files: The accompanying files for this assignment are geoc lab3.html and
+TestLab3 i.json.js (for i = 1, 2).
+Delivery: upload the modified HTML file and any other necessary files to the Racó.
+
+The goal is to classify the relative position of a point with respect to a circle.
+Write a program to decide whether a point lies in the interior, the boundary or the
+exterior of a circle defined by three points.
+Mark in green the interior points and in red the points in the exterior. Use any
+color of your choice for the boundary points, and add a meaningful description for
+each case. Make sure that your program works properly, no matter whether the three
+points are given in clockwise or counter-clockwise order.
+Your program should be used to correctly classify points and circle appearing in the
+files TestLab3 i.json.js (for i = 1, 2). To that end, modify the HTML file in the
+area signaled with a “TODO” comment.
+
+1/1 - Computational Geometry - Facultat d’Informàtica de Barcelona - UPC

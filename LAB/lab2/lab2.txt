@@ -1,0 +1,20 @@
+GEOC
+
+2. Point-in-triangle test
+
+Files: The accompanying files for this assignments are geoc lab2.html and
+TestLab2 i.json.js (for i = 1, 2, 3).
+Delivery: upload the modified HTML file and any other necessary files to the Racó.
+
+The goal is to classify the relative position of a point with respect to a triangle.
+Write a program to decide whether a point is located in the interior, the boundary
+or the exterior of a triangle. When the point lies in the boundary, the program must
+also detect whether the point coincides with a vertex or not.
+Mark in green the interior points and in red the points in the exterior. Use two other colors of your choice for the boundary points, and add a meaningful description
+for each of the four cases. Make sure that your program works properly, no matter
+whether the vertices of the triangle are given in clockwise or counter-clockwise order.
+Your program should be used to correctly classify the points and triangles in the
+files TestLab2 i.json.js (for i = 1, 2, 3). To that end, modify the HTML file in
+the area signaled with a “TODO” comment.
+
+1/1 - Computational Geometry - Facultat d’Informàtica de Barcelona - UPC
